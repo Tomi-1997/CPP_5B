@@ -3,9 +3,9 @@
 #include <iostream>
 #include <vector>
 
-#define LEVEL 0
-#define REVERSE 1
-#define PRE 2 
+constexpr int LEVEL = 0;
+constexpr int  REVERSE = 1;
+constexpr int  PRE = 2 ;
 
 #define DEBUG 0
 
@@ -22,10 +22,19 @@ namespace ariel
         {
 
         }
+
         OrgChart(const OrgChart& ot)
         {
             first = new Node(ot.first);
         }
+
+        // Move ctor, allows a resources to be shifted without creating a copy.
+        OrgChart(OrgChart&& ot) noexcept // delcaration that the function will not throw an exception
+        {
+            first = ot.first;
+            ot.first = nullptr;
+        }
+
         private:
             struct Node 
             {
@@ -36,11 +45,11 @@ namespace ariel
                 Node* parent;
                 bool visited;
                 Node(const std::string& val) 
-                : value(val), children(), parent(nullptr), visited(false)
+                : value(val), parent(nullptr), visited(false)
                 {
                 }
                 Node(const Node* ot)
-                : value(ot->value), children(), parent(nullptr), visited(false)
+                : value(ot->value), parent(nullptr), visited(false)
                 // To ensure deep copy of children vector, define new node for each child, and do the same for the children.
                 {
                     initNode(this, ot);
@@ -82,6 +91,37 @@ namespace ariel
             clear(first);
         }
 
+        OrgChart& operator=(const OrgChart& ot)
+        {
+
+            if (this == &ot)
+            {
+                return *this;
+            }
+
+            // Delete current, deep copy from other to self, return self.
+
+            clear(first);
+            if (ot.first != nullptr)
+            {
+                first = new Node(ot.first);
+            }
+            return *this;
+        }
+
+        OrgChart& operator=(OrgChart&& ot) noexcept // delcaration that the function will not throw an exception
+        {
+            if (this == &ot)
+            {
+                return *this;
+            }
+
+            // Delete current, deep copy from other to self, return self.
+            first = ot.first;
+            ot.first = nullptr;
+            return *this;
+        }
+
         /**
          * @brief Adds new root with a given string, if there is already a root, replaces his data.
          * 
@@ -104,7 +144,7 @@ namespace ariel
         // Won't compile unless defined as friend
         friend std::ostream& operator << (std::ostream& out, const OrgChart& oc)
         {
-            std::string ans = "";
+            std::string ans;
             oc.chartDisplay(oc.first, ans);
             return out << ans;
         }
@@ -116,6 +156,8 @@ namespace ariel
           Node* root;
           int mode;
 
+        // https://www.geeksforgeeks.org/find-deepest-node-binary-tree/
+        // with help of link above implement iterations
         /**
          * @brief Resets all of the nodes visited status.
          * 
@@ -225,7 +267,7 @@ namespace ariel
               }
               return *this;
           }
-          const iterator operator++(int)
+          iterator operator++(int)
           {
               iterator temp = *this;
               operator++();
