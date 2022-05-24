@@ -8,11 +8,6 @@ constexpr int  REVERSE = 1;
 constexpr int  PRE = 2 ;
 
 #define DEBUG 0
-
-/*
-MISSING
-♥ improve print operator
-*/
 namespace ariel
 {
     class OrgChart
@@ -115,8 +110,8 @@ namespace ariel
             {
                 return *this;
             }
+            // Move resources without creating additional copies
 
-            // Delete current, deep copy from other to self, return self.
             first = ot.first;
             ot.first = nullptr;
             return *this;
@@ -139,14 +134,30 @@ namespace ariel
          */
         OrgChart& add_sub(const std::string& dad_name, const std::string& name);
 
-        void chartDisplay(const Node* n, std::string& ans) const;
+        /* Prints current OrgTree horizontally
+        A ----> B-->D
+                |   |
+                |   E
+                C
 
-        // Won't compile unless defined as friend
-        friend std::ostream& operator << (std::ostream& out, const OrgChart& oc)
+            Same as:
+                
+                A
+             B     C
+           D--E
+        With help of https://stackoverflow.com/questions/36802354/print-binary-tree-in-a-pretty-way-using-c
+        */
+        void show(Node* n, const std::string& prefix, bool isLast) const;
+
+        friend std::ostream& operator << (std::ostream& out, const OrgChart& ot)
         {
-            std::string ans;
-            oc.chartDisplay(oc.first, ans);
-            return out << ans;
+            ot.show(ot.first, "", false);
+            return out;
+        }
+        friend std::ostream& operator << (std::ostream& out, const OrgChart* ot)
+        {
+            ot->show(ot->first, "", false);
+            return out;
         }
 
         class iterator
@@ -157,7 +168,7 @@ namespace ariel
           int mode;
 
         // https://www.geeksforgeeks.org/find-deepest-node-binary-tree/
-        // with help of link above implement iterations
+        // implemented iterations with help of link above
         /**
          * @brief Resets all of the nodes visited status.
          * 

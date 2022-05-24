@@ -92,15 +92,37 @@ OrgChart& OrgChart::add_sub(const std::string& dad_name, const std::string& name
     return *this;
 }
 
-void OrgChart::chartDisplay(const Node* n, std::string& ans) const
+void OrgChart::show(Node* n, const std::string& prefix, bool isLast) const
 {
+    if (n != nullptr)
+    {
+        std::cout << prefix;
+        if (isLast)
+        {
+            std::cout << "└── ";
+        }
+        else
+        {        
+            std::cout << "├── ";
+        }
+        std::cout << n->value << std::endl;
 
+        for (size_t i = 0; i < n->children.size(); i++)
+        {
+            if (i + 1 == n->children.size()) // LAST
+            {
+                show(n->children.at(i), prefix +("│   "), true);
+            }
+            else
+            {
+                show(n->children.at(i), prefix +("│   "), false);
+
+            }
+        }
+    }
 }
 
-
 /*Iterator functions*/
-
-
 /**
  * @brief Resets all of the nodes visited status.
  * 
